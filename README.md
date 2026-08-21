@@ -5,13 +5,13 @@
   ![BTT Game Jam 2026](https://img.shields.io/badge/BTT%20Web%20Game%20Jam-Summer%202026-ff0055?style=for-the-badge&logo=game-and-watch)
   ![Live Demo](https://img.shields.io/badge/LIVE%20DEMO-VERCEL%20DEPLOYED-00ff88?style=for-the-badge&logo=vercel&logoColor=black)
   ![Three.js](https://img.shields.io/badge/3D%20ENGINE-THREE.JS%20WebGL-00f3ff?style=for-the-badge&logo=three.js)
-  ![Web Audio API](https://img.shields.io/badge/AUDIO-WEB%20AUDIO%20API-ffd700?style=for-the-badge)
+  ![Web Audio API](https://img.shields.io/badge/AUDIO-PROCEDURAL%20SYNTHWAVE-ffd700?style=for-the-badge)
 
   <br />
 
   ### 🌐 **[PLAY LIVE GAME HERE: https://game-hazel-psi-89.vercel.app/](https://game-hazel-psi-89.vercel.app/)** 🌐
 
-  *An award-winning, high-speed 3D WebGL highway heist fugitive runner featuring 24K glowing gold bars, cash bundles, near-miss combo multipliers, GTA-style wanted level escalation, high-realism police interceptor SUVs, and dynamic wet asphalt rain mode.*
+  *An award-winning, high-speed 3D WebGL highway heist fugitive runner featuring procedural synthwave chase music, 24K glowing gold bars, near-miss combo multipliers, friction sparks, highway milestones, GTA-style wanted level escalation, high-realism police interceptor SUVs, and dynamic rain mode.*
 
 </div>
 
@@ -21,14 +21,17 @@
 
 In **Canyon Highway Surfer 3D**, you play as an **Escaped Inmate Fugitive** (`INMATE 9920`) sprinting down a mountain canyon highway in an iconic bright orange prison jumpsuit with dangling handcuffs! 
 
-Pursued by a **Police Officer Pursuer** and **Police Interceptor SUVs**, your mission is to collect stolen **Dollar Cash Bundles ($100)** and **24K Gold Bullion Bars ($500)**, expand your **Cash Duffel Bag**, pull off high-risk **Near-Miss Dodges** to build up your **Score Multiplier**, jump heavy **Construction Barricades (`W`/`↑`)**, slide under **Toll Gates (`S`/`↓`)**, and survive an escalating **5-Star GTA-Style Wanted Level**!
+Pursued by a **Police Officer Pursuer** and **Police Interceptor SUVs**, your mission is to collect stolen **Dollar Cash Bundles ($100)** and **24K Gold Bullion Bars ($500)**, expand your **Cash Duffel Bag**, pull off high-risk **Near-Miss Dodges** to build up your **Score Multiplier (`1x` to `4x`)**, jump heavy **Construction Barricades (`W`/`↑`)**, slide under **Toll Gates (`S`/`↓`)** with fiery friction sparks, pass **Highway Milestone Gantries**, and survive an escalating **5-Star GTA-Style Wanted Level**!
 
 ---
 
 ## ✨ Standout Key Features
 
-- 🏃 **Escaped Prisoner Fugitive Avatar**: Iconic bright orange prison jumpsuit (`INMATE 9920`) with black horizontal stripes, stamped inmate ID badge, dangling wrist handcuffs, dark beanie, and expanding cash duffel bag!
+- 🎵 **Dynamic Procedural Synthwave Chase Soundtrack**: 100% code-generated Web Audio API synthwave bassline and electronic percussion that dynamically accelerates its BPM as your escape speed climbs from 120 KM/H to 240 KM/H!
 - ⚡ **Near-Miss Bonus & Combo Multipliers (`1x` to `4x`)**: Weave within inches of Police SUVs or Barricades to trigger instant `+$500 NEAR MISS!` bonuses, electric audio chimes, and camera impact shake!
+- ✨ **Slide Friction Sparks & Speed Wind Streaks**: Glowing orange friction sparks fly from the runner's sneakers when sliding under toll gates, and wind streaks stream across the screen at top velocity!
+- 🚩 **Highway Milestone Gantries (500m, 1000m, 1500m+)**: Roadside green highway overhead gantry signs celebrating key distance milestones with celebratory brass fanfares!
+- 🏃 **Escaped Prisoner Fugitive Avatar**: Iconic bright orange prison jumpsuit (`INMATE 9920`) with black horizontal stripes, stamped inmate ID badge, dangling wrist handcuffs, dark beanie, and expanding cash duffel bag!
 - ⭐ **GTA-Style Wanted Level Escalation (⭐ to ⭐⭐⭐⭐⭐)**: Real-time Wanted Level star gauge that escalates police chase frequency and speed as your escape distance increases!
 - 🧈 **24K Pure Glowing Gold Bullion Bars ($500)**: Emissive 24K gold shader material (`color: #ffcc00, emissive: #ffaa00`) glowing brightly on top of the flat asphalt road (`y = 0.15`)!
 - 💵 **Dollar Cash Bundles ($100)**: Stolen cash stacks wrapped in paper bands that physically expand your runner's Cash Duffel Bag as you collect them!

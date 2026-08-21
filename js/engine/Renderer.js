@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Three.js Engine - Photorealistic Lighting, Dynamic FOV & Camera Shake
+   Three.js Engine - Photorealistic Lighting, Slide Sparks & Wind Streaks
    ========================================================================== */
 
 export class Renderer {
@@ -33,12 +33,13 @@ export class Renderer {
         this.initLights();
         this.buildHighwayLandscape();
         this.initRainSystem();
+        this.initSlideSparks();
+        this.initSpeedWindStreaks();
 
         window.addEventListener('resize', () => this.resize());
     }
 
     initLights() {
-        // High-Efficiency Photorealistic Lighting
         this.ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
         this.scene.add(this.ambientLight);
 
@@ -70,6 +71,89 @@ export class Renderer {
         this.scene.add(this.rainPoints);
     }
 
+    initSlideSparks() {
+        this.sparkCount = 60;
+        const sparkGeo = new THREE.BufferGeometry();
+        this.sparkPositions = new Float32Array(this.sparkCount * 3);
+        this.sparkVelocities = [];
+
+        for (let s = 0; s < this.sparkCount; s++) {
+            this.sparkPositions[s * 3] = 0;
+            this.sparkPositions[s * 3 + 1] = -10;
+            this.sparkPositions[s * 3 + 2] = 0;
+            this.sparkVelocities.push({ vx: 0, vy: 0, vz: 0, life: 0 });
+        }
+
+        sparkGeo.setAttribute('position', new THREE.BufferAttribute(this.sparkPositions, 3));
+        const sparkMat = new THREE.PointsMaterial({
+            color: 0xff9900,
+            size: 0.45,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending
+        });
+        this.sparks = new THREE.Points(sparkGeo, sparkMat);
+        this.sparks.frustumCulled = false;
+        this.scene.add(this.sparks);
+    }
+
+    emitSlideSparks(playerX, playerY) {
+        for (let i = 0; i < 4; i++) {
+            const idx = Math.floor(Math.random() * this.sparkCount);
+            this.sparkPositions[idx * 3] = playerX + (Math.random() - 0.5) * 0.4;
+            this.sparkPositions[idx * 3 + 1] = playerY + 0.1;
+            this.sparkPositions[idx * 3 + 2] = 0.5 + Math.random() * 0.5;
+
+            this.sparkVelocities[idx] = {
+                vx: (Math.random() - 0.5) * 0.15,
+                vy: Math.random() * 0.12 + 0.04,
+                vz: Math.random() * 0.4 + 0.2,
+                life: 1.0
+            };
+        }
+    }
+
+    initSpeedWindStreaks() {
+        const lineCount = 50;
+        const lineGeo = new THREE.BufferGeometry();
+        const linePos = new Float32Array(lineCount * 3);
+
+        for (let l = 0; l < lineCount; l++) {
+            const side = Math.random() > 0.5 ? 1 : -1;
+            linePos[l * 3] = side * (Math.random() * 8 + 4);
+            linePos[l * 3 + 1] = Math.random() * 8 + 2;
+            linePos[l * 3 + 2] = -Math.random() * 120 + 10;
+        }
+
+        lineGeo.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+        const lineMat = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.2,
+            transparent: true,
+            opacity: 0.5
+        });
+        this.windStreaks = new THREE.Points(lineGeo, lineMat);
+        this.windStreaks.visible = false;
+        this.windStreaks.frustumCulled = false;
+        this.scene.add(this.windStreaks);
+    }
+
+    updateSpeedWindStreaks(speedFactor) {
+        if (speedFactor > 1.1) {
+            this.windStreaks.visible = true;
+            const pos = this.windStreaks.geometry.attributes.position.array;
+            for (let l = 0; l < pos.length / 3; l++) {
+                pos[l * 3 + 2] += speedFactor * 3.5;
+                if (pos[l * 3 + 2] > 20) {
+                    pos[l * 3 + 2] = -120;
+                }
+            }
+            this.windStreaks.geometry.attributes.position.needsUpdate = true;
+        } else {
+            this.windStreaks.visible = false;
+        }
+    }
+
     toggleRain() {
         this.isRaining = !this.isRaining;
         this.rainPoints.visible = this.isRaining;
@@ -81,7 +165,6 @@ export class Renderer {
     }
 
     setSpeedFov(speedFactor) {
-        // Speed Factor 1.0 (120 KM/H) -> FOV 60 | Speed Factor 2.0 (240 KM/H) -> FOV 72
         this.targetFov = Math.min(74, this.baseFov + (speedFactor - 0.8) * 12);
         this.camera.fov += (this.targetFov - this.camera.fov) * 0.05;
         this.camera.updateProjectionMatrix();
@@ -210,6 +293,28 @@ export class Renderer {
                 if (pos[r * 3 + 1] < 0) pos[r * 3 + 1] = 25;
             }
             this.rainPoints.geometry.attributes.position.needsUpdate = true;
+        }
+
+        // Animate Slide Sparks
+        if (this.sparks) {
+            let hasActiveSparks = false;
+            for (let s = 0; s < this.sparkCount; s++) {
+                const vel = this.sparkVelocities[s];
+                if (vel.life > 0) {
+                    hasActiveSparks = true;
+                    this.sparkPositions[s * 3] += vel.vx;
+                    this.sparkPositions[s * 3 + 1] += vel.vy;
+                    this.sparkPositions[s * 3 + 2] += vel.vz;
+                    vel.vy -= 0.008; // Gravity on sparks
+                    vel.life -= 0.05;
+                    if (vel.life <= 0) {
+                        this.sparkPositions[s * 3 + 1] = -10;
+                    }
+                }
+            }
+            if (hasActiveSparks) {
+                this.sparks.geometry.attributes.position.needsUpdate = true;
+            }
         }
 
         // Apply Screen Shake if active

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   HIGHWAY HEIST CANYON SURFER 3D - MAIN 60 FPS CONTROLLER & NEAR-MISS SYSTEM
+   HIGHWAY HEIST CANYON SURFER 3D - COMPETITION-WINNING 60 FPS MAIN CONTROLLER
    ========================================================================== */
 
 import { Renderer } from './engine/Renderer.js';
@@ -117,6 +117,9 @@ class CanyonSurferGame {
             // Speed acceleration
             this.currentSpeed += 0.00015;
 
+            // Update procedural BGM tempo with speed!
+            this.audio.setSpeedTempo(this.currentSpeed);
+
             // Escape Distance Ticker & Speedometer
             this.distanceMeters += Math.floor(this.currentSpeed * 4);
             const kmh = Math.floor(this.currentSpeed * 150);
@@ -124,8 +127,12 @@ class CanyonSurferGame {
             document.getElementById('distance-display').innerText = `${this.distanceMeters} m`;
             document.getElementById('speed-display').innerText = `${kmh} KM/H`;
 
-            // Update Dynamic FOV with speed
+            // Check Milestone Gantries (500m, 1000m, 1500m)
+            this.track.checkMilestoneSpawn(this.distanceMeters);
+
+            // Update Dynamic FOV with speed & Wind Streaks
             this.renderer.setSpeedFov(this.currentSpeed);
+            this.renderer.updateSpeedWindStreaks(this.currentSpeed);
 
             // Handle Combo Streak Decay
             if (this.comboTimer > 0) {
@@ -166,6 +173,11 @@ class CanyonSurferGame {
             this.player.update();
             this.chaser.update(this.player.mesh.position.x, this.stumbleTimer > 0);
             this.track.update(this.currentSpeed);
+
+            // Emit Friction Sparks while sliding
+            if (this.player.isSliding) {
+                this.renderer.emitSlideSparks(this.player.currentX, this.player.mesh.position.y);
+            }
 
             if (this.stumbleTimer > 0) {
                 this.stumbleTimer--;
@@ -212,7 +224,6 @@ class CanyonSurferGame {
                         this.renderer.scene.remove(item);
                         this.track.items.splice(i, 1);
                     } else if (item.userData.type === 'HURDLE' || item.userData.type === 'BARRIER' || item.userData.type === 'POLICE' || item.userData.type === 'ARMORED') {
-                        // OBSTACLES ARE NEVER DELETED FROM SCENE ON HIT!
                         if (!item.userData.hit) {
                             item.userData.hit = true;
                             this.renderer.triggerShake(0.6);
@@ -225,6 +236,7 @@ class CanyonSurferGame {
                                 this.currentSpeed *= 0.6;
                             } else {
                                 this.audio.playCrash();
+                                this.audio.stopBGM();
                                 this.gameState = 'GAMEOVER';
                                 
                                 if (this.cashAmount > this.highScore) {
@@ -266,12 +278,14 @@ class CanyonSurferGame {
     initUI() {
         document.getElementById('btn-start-game').addEventListener('click', () => {
             this.audio.init();
+            this.audio.startBGM();
             document.getElementById('modal-start').classList.remove('active');
             this.resetGame();
             this.gameState = 'PLAYING';
         });
 
         document.getElementById('btn-replay-game').addEventListener('click', () => {
+            this.audio.startBGM();
             document.getElementById('modal-gameover').classList.remove('active');
             this.resetGame();
             this.gameState = 'PLAYING';
@@ -279,6 +293,7 @@ class CanyonSurferGame {
 
         document.getElementById('btn-restart').addEventListener('click', () => {
             this.resetGame();
+            this.audio.startBGM();
         });
 
         document.getElementById('btn-rain').addEventListener('click', () => {

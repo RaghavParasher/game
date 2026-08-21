@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Track - Photorealistic Highway, 24K Gold Bars, Police SUVs & Armored Vans
+   Track - Photorealistic Highway, 24K Gold Bars, Milestones & Best Record Line
    ========================================================================== */
 
 export class Track {
@@ -7,7 +7,9 @@ export class Track {
         this.scene = scene;
         this.tracks = [];
         this.items = [];
+        this.milestones = [];
         this.spawnTimer = 0;
+        this.nextMilestoneMeters = 500;
 
         this.initSharedResources();
         this.buildPermanentAsphaltGround();
@@ -94,6 +96,9 @@ export class Track {
 
         this.tollGateGeo = new THREE.BoxGeometry(3.2, 1.6, 0.4);
         this.tollGateMat = new THREE.MeshStandardMaterial({ color: 0xffb703, roughness: 0.3, metalness: 0.3 });
+
+        // Milestone Highway Gantry Sign Material
+        this.milestoneGantryMat = new THREE.MeshStandardMaterial({ color: 0x059669, metalness: 0.5, roughness: 0.3 });
     }
 
     buildPermanentAsphaltGround() {
@@ -128,6 +133,35 @@ export class Track {
         group.traverse(child => { if (child.isMesh) child.frustumCulled = false; });
         this.scene.add(group);
         this.tracks.push(group);
+    }
+
+    spawnMilestoneGantry(posZ, distanceLabel) {
+        const gantry = new THREE.Group();
+
+        // Support Pillars
+        const pillarL = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 10, 8), this.chromeMat);
+        pillarL.position.set(-6.5, 5, 0);
+        const pillarR = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 10, 8), this.chromeMat);
+        pillarR.position.set(6.5, 5, 0);
+        gantry.add(pillarL); gantry.add(pillarR);
+
+        // Cross Overhead Sign Board
+        const signBoard = new THREE.Mesh(new THREE.BoxGeometry(11, 2.2, 0.4), this.milestoneGantryMat);
+        signBoard.position.set(0, 8.5, 0);
+        gantry.add(signBoard);
+
+        // Glowing Yellow Frame
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(11.2, 2.4, 0.2), this.goldTrimMat);
+        frame.position.set(0, 8.5, -0.15);
+        gantry.add(frame);
+
+        gantry.position.set(0, 0, posZ);
+        gantry.userData = { type: 'MILESTONE', label: distanceLabel };
+        gantry.traverse(child => { if (child.isMesh) child.frustumCulled = false; });
+
+        this.scene.add(gantry);
+        this.milestones.push(gantry);
+        return gantry;
     }
 
     createDollarCashStack(pos) {
@@ -328,6 +362,14 @@ export class Track {
         }
     }
 
+    checkMilestoneSpawn(currentDistanceMeters) {
+        if (currentDistanceMeters >= this.nextMilestoneMeters) {
+            const label = `🚩 ${this.nextMilestoneMeters}m CANYON ESCAPE`;
+            this.spawnMilestoneGantry(-190, label);
+            this.nextMilestoneMeters += 500;
+        }
+    }
+
     update(speed = 1.0) {
         for (const t of this.tracks) {
             t.position.z += speed;
@@ -355,6 +397,16 @@ export class Track {
                 this.items.splice(i, 1);
             }
         }
+
+        // Update Highway Milestone Gantries
+        for (let m = this.milestones.length - 1; m >= 0; m--) {
+            const milestone = this.milestones[m];
+            milestone.position.z += speed;
+            if (milestone.position.z > 25) {
+                this.scene.remove(milestone);
+                this.milestones.splice(m, 1);
+            }
+        }
     }
 
     reset() {
@@ -362,7 +414,14 @@ export class Track {
             this.scene.remove(item);
         }
         this.items = [];
+
+        for (const m of this.milestones) {
+            this.scene.remove(m);
+        }
+        this.milestones = [];
+
         this.spawnTimer = 0;
+        this.nextMilestoneMeters = 500;
 
         for (let z = -30; z >= -180; z -= 35) {
             this.spawnGuaranteedSolvablePattern(z);
