@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CANYON HIGHWAY SURFER 3D - Highway Heist Edition</title>
+    <meta name="description" content="A photorealistic, high-speed 3D highway fugitive escape runner featuring 24K gold bullion bars, cash bundles, police interceptor SUVs, armored bank vans, and wanted level escalation built with Three.js for BTT Web Game Jam 2026.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Three.js Engine CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Three.js WebGL Canvas Container -->
+        <div id="webgl-container"></div>
+
+        <!-- Floating Near-Miss Combo Alert -->
+        <div id="combo-alert" class="combo-alert">
+            ⚡ NEAR MISS! <span id="combo-bonus">+$500</span>
+        </div>
+
+        <!-- HUD Layer -->
+        <div id="hud">
+            <div class="hud-top">
+                <div class="hud-brand">
+                    <span class="brand-title">HIGHWAY HEIST</span>
+                    <!-- GTA-Style Wanted Level Star Gauge -->
+                    <div id="wanted-gauge" class="wanted-gauge">
+                        <span class="wanted-label">WANTED LEVEL:</span>
+                        <span class="star active" id="star-1">⭐</span>
+                        <span class="star" id="star-2">⭐</span>
+                        <span class="star" id="star-3">⭐</span>
+                        <span class="star" id="star-4">⭐</span>
+                        <span class="star" id="star-5">⭐</span>
+                    </div>
+                </div>
+                <div class="hud-stats">
+                    <div class="stat-box">
+                        <span class="stat-label">ESCAPE DISTANCE</span>
+                        <span id="distance-display" class="stat-value">0 m</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">SPEED</span>
+                        <span id="speed-display" class="stat-value">120 KM/H</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">STOLEN LOOT</span>
+                        <span id="coins-display" class="stat-value">💵 $0 | 🧈 0</span>
+                    </div>
+                    <div class="stat-box multiplier-box">
+                        <span class="stat-label">STREAK</span>
+                        <span id="multiplier-display" class="stat-value streak-val">1x</span>
+                    </div>
+                </div>
+                <div class="hud-actions">
+                    <button id="btn-rain" class="icon-btn" title="Toggle Rain Mode">🌧️</button>
+                    <button id="btn-audio" class="icon-btn" title="Toggle Sound">🔊</button>
+                    <button id="btn-restart" class="icon-btn" title="Restart">🔄</button>
+                </div>
+            </div>
+
+            <!-- Controls Banner Overlay -->
+            <div id="hint-banner" class="hint-banner">
+                <span class="key">A</span> / <span class="key">D</span> or <span class="key">←</span> / <span class="key">→</span> Lanes | <span class="key">W</span> / <span class="key">↑</span> Jump | <span class="key">S</span> / <span class="key">↓</span> Slide Under Tolls
+            </div>
+        </div>
+
+        <!-- Start Screen Modal -->
+        <div id="modal-start" class="modal active">
+            <div class="modal-content glass-card">
+                <h1 class="glow-title">HIGHWAY HEIST</h1>
+                <p class="subtitle">FUGITIVE INMATE CANYON ESCAPE</p>
+                <div class="story-box">
+                    <p>Escape down the mountain highway in your orange prison jumpsuit! Grab <strong>Dollar Cash Bundles ($100)</strong> & <strong>24K Gold Bullion Bars ($500)</strong> to expand your <strong>Loot Duffel Bag</strong>, perform <strong>Near-Miss Dodges</strong> for Score Multipliers, weave through <strong>Police Interceptor SUVs</strong> & <strong>Armored Bank Vans</strong>, jump <strong>Construction Barricades (`W`/`↑`)</strong>, and slide under <strong>Overhead Toll Clearance Gates (`S`/`↓`)</strong>!</p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="btn-start-game" class="btn btn-primary btn-glow">LAUNCH ESCAPE RUN 💵</button>
+                </div>
+                <div class="tagline">Built with Three.js WebGL for BTT Web Game Jam 2026</div>
+            </div>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="modal-gameover" class="modal">
+            <div class="modal-content glass-card">
+                <h2 class="glow-title-orange">ARRESTED BY POLICE!</h2>
+                <div class="victory-stats">
+                    <p>Escape Distance: <strong id="final-distance">0 m</strong></p>
+                    <p>Stolen Loot Secured: <strong id="final-coins">💵 $0 | 🧈 0</strong></p>
+                    <p>Max Speed Reached: <strong id="final-speed">0 KM/H</strong></p>
+                    <p>All-Time High Score: <strong id="high-score-display">💵 $0</strong></p>
+                </div>
+                <div class="trophy-room">
+                    <span class="trophy-badge">🏆 Inmate Heist Legend</span>
+                    <span class="trophy-badge">🧈 Gold King</span>
+                    <span class="trophy-badge">🚓 5-Star Evader</span>
+                </div>
+                <div class="modal-buttons">
+                    <button id="btn-replay-game" class="btn btn-primary btn-glow">ATTEMPT ESCAPE AGAIN 🏃</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Touch Controls -->
+        <div id="touch-controls" class="touch-controls">
+            <div class="touch-group left">
+                <button id="touch-left" class="touch-btn">◀</button>
+                <button id="touch-right" class="touch-btn">▶</button>
+            </div>
+            <div class="touch-group right">
+                <button id="touch-jump" class="touch-btn action-btn">JUMP</button>
+                <button id="touch-slide" class="touch-btn action-btn">SLIDE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Module -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
